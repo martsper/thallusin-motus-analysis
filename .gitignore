@@ -1,0 +1,16 @@
+# Large mOTUs-db genome summary file
+input_tables/mOTUsv4.0_genome_summary.tsv
+
+# R session/history files
+.Rhistory
+.RData
+.Rproj.user/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Temporary files
+*.tmp
+*.log

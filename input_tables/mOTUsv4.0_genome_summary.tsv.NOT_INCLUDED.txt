@@ -1,0 +1,11 @@
+The file mOTUsv4.0_genome_summary.tsv is not included in this GitHub repository because it is >1 GB.
+
+It is required by scripts/thallusin_analysis.R and should be placed here:
+
+input_tables/mOTUsv4.0_genome_summary.tsv
+
+The file can be downloaded from mOTUs-db:
+https://motus-db.org
+
+Alternatively, it is available from:
+https://polybox.ethz.ch/index.php/s/4W7JtH37ArP68cE
