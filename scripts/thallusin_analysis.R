@@ -17,9 +17,6 @@ library(svglite)
 library(ggtext)
 library(data.table)
 library(ape)
-library(treeio)
-library(ggtree)
-library(ggtreeExtra)
 library(grid)
 
 ###################################################################################
