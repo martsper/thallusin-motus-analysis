@@ -4,10 +4,10 @@ This repository contains the custom R script and associated input/output files u
 
 ## Overview
 
-Translated mOTUs-db genomes were searched with MMseqs2 `easy-search` against nine target proteins associated with thallusin biosynthesis:
+Translated mOTUs-db genomes were searched with MMseqs2 `easy-search` against nine target proteins associated with thallusin biosynthesis.
 
-- EboA–F from *Maribacter stanieri* DSM 19891
-- Ino1–3 from *Saccharomonospora* sp. CNQ-490
+- EboA–F from *Maribacter stanieri* DSM 19891 (GCF_900112245.1)
+- Ino1–3 from *Saccharomonospora* sp. CNQ-490 (GCF_000527075.1)
 
 The R script parses the MMseqs2 output, identifies putative thallusin biosynthetic gene clusters, summarizes gene presence/absence across genomes and phyla, and prepares output files for visualization in iTOL.
 
@@ -82,4 +82,8 @@ output_tables/
 output_figures/
 ```
 
-It also generates files used for visualization of order-level prevalence of the core genes `eboB`, `eboC`, `eboE`, and `eboF` on a pruned GTDB R220 tree in iTOL.
+It also generates files used for visualization of order-level prevalence of the core genes `eboB`, `eboC`, `eboE`, and `eboF` on a pruned GTDB R220 tree, which can be imported in iTOL (https://itol.embl.de/):
+
+```text
+output_itol/
+```
