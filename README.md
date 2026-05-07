@@ -2,8 +2,6 @@
 
 This repository contains the custom R script and associated input/output files used to analyze the distribution of thallusin-associated biosynthetic genes across 124,295 representative prokaryotic genomes from mOTUs-db.
 
-The analysis was performed for the manuscript section: **“Mapping the prevalence of thallusin biosynthetic genes across the prokaryotic tree of life.”**
-
 ## Overview
 
 Translated mOTUs-db genomes were searched with MMseqs2 `easy-search` against nine target proteins associated with thallusin biosynthesis:
