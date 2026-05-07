@@ -11,8 +11,6 @@ Translated mOTUs-db genomes were searched with MMseqs2 `easy-search` against nin
 
 The R script parses the MMseqs2 output, identifies putative thallusin biosynthetic gene clusters, summarizes gene presence/absence across genomes and phyla, and prepares output files for visualization in iTOL.
 
-Thallusin clusters were defined as regions containing at least four of the nine target proteins, with adjacent MMseqs2 hits separated by no more than six open reading frames.
-
 ## Repository structure
 
 ```text
