@@ -85,3 +85,17 @@ It also generates files used for visualization of order-level prevalence of the 
 ```text
 output_itol/
 ```
+
+## References
+
+The analysis is part of the following pre-print:
+
+> Conserved bacterial genes for biosynthesis of the algal morphogen thallusin span land and sea<br>
+Nicolai Kallscheuer, Johann F. Ulrich, Myriel Staack, Yaming Liu, Mrinal K. Das, Melanie Westphahl, Martin Sperfeld, Hermann Holbl, Jonathan Hammer, Raimund Nagel, Severin Sasso, Shinichi Sunagawa, Julie A.Z. Zedler, Hans-Dieter Arndt, Christine Beemelmanns, Christian Jogler, Thomas Wichard<br>
+bioRxiv 2026.05.21.724671; [https://doi.org/10.64898/2026.05.21.724671](https://www.biorxiv.org/content/10.64898/2026.05.21.724671v1)
+
+The mOTUs-db genomes were described here:
+
+> The mOTUs online database provides web-accessible genomic context to taxonomic profiling of microbial communities<br>
+Marija Dmitrijeva, Hans-Joachim Ruscheweyh, Lilith Feer, Kang Li, Samuel Miravet-Verde, Anna Sintsova, Daniel R Mende, Georg Zeller, Shinichi Sunagawa.<br>
+Nucleic Acids Research, Volume 53, Issue D1, 6 January 2025, Pages D797–D805; [https://doi.org/10.1093/nar/gkae1004](https://doi.org/10.1093/nar/gkae1004)
