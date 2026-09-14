@@ -14,3 +14,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.log
+
+# Cache
+.cache/

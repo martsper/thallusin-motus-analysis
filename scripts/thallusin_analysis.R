@@ -1,8 +1,6 @@
 # Run from repository root:
 # Rscript scripts/thallusin_analysis.R
 
-setwd("/nfs/nas22/fs2202/biol_micro_sunagawa/OMICS/msperfeld/ELN/14_THALLUSIN/R_Production")
-
 ################
 ## Libraries ###
 ################
@@ -23,22 +21,38 @@ library(grid)
 ## Load mmseqs2 results, and analyse for co-occurrence of Ebo genes on scaffolds ##
 ###################################################################################
 
-# To analyze the potential for thallusin biosynthesis, 124,295 non-redundant
-# genomes were downloaded from mOTUs-db (http://www.motus-db.org). These
-# genomes are representatives of species-level clustered operational taxonomic
-# units (mOTUs) and were selected from a collection of 3.75M systematically
-# processed prokaryotic genomes, including MAGs, SAGs, and isolates, obtained
-# from 118K global samples. Each mOTUs-db genome was taxonomically classified
-# with GTDB R220 using GTDB-Tk v. 2.4, and protein-coding genes were predicted
-# using Prodigal (v2.6.3; -c -m -g 11 -p single). The translated genomes were
-# used as query to search with MMseqs2 in easy-search mode (Git commit
-# 8ef870f95af2a3ee474c2cdbb845f5f007fe5be6; default parameters: -s 5.7
-# [sensitivity], -e 1.000E-03 [e-value]) for homology against nine target
-# protein sequences associated with thallusin biosynthesis: EboA-F from
-# Maribacter stanieri DSM 19891 (RefSeq accession GCF_900112245.1) and Ino1-3
-# from Saccharomonospora sp. CNQ-490 (RefSeq accession GCF_000527075.1). The
-# FASTA file containing the Ebo/Ino target protein sequences is provided in the
-# subfolder `ebo_proteins/`.
+# To analyze the potential for thallusin biosynthesis, species-level representative
+# genomes from mOTUs-db v4.0 (http://www.motus-db.org) were used:
+#
+#   Dmitrijeva M, Ruscheweyh H-J, Feer L, Li K, Miravet-Verde S, Sintsova A,
+#   Mende DR, Zeller G, Sunagawa S.
+#   The mOTUs online database provides web-accessible genomic context to
+#   taxonomic profiling of microbial communities.
+#   Nucleic Acids Research. 2025;53(D1):D797-D805.
+#   https://doi.org/10.1093/nar/gkae1004
+#
+# The mOTUs-db collection comprises approximately 3.75 million systematically
+# processed prokaryotic genomes, including MAGs, SAGs, and isolate genomes,
+# obtained from 117,902 metagenomic samples. These genomes were clustered into
+# 124,295 species-level molecular operational taxonomic units (mOTUs), each
+# represented by one representative genome.
+#
+# As part of the mOTUs-db processing, genomes had been taxonomically classified
+# using GTDB R220 with GTDB-Tk v2.4, and protein-coding genes had been predicted
+# using Prodigal (v2.6.3; -c -m -g 11 -p single).
+#
+# For the present analysis, the translated proteomes of the representative genomes
+# were obtained from mOTUs-db and used as queries in MMseqs2 easy-search mode
+# (Git commit 8ef870f95af2a3ee474c2cdbb845f5f007fe5be6; default parameters:
+# -s 5.7 [sensitivity], -e 1.000E-03 [e-value]) against nine target protein
+# sequences associated with thallusin biosynthesis: EboA-F from Maribacter
+# stanieri DSM 19891 (RefSeq accession GCF_900112245.1) and Ino1, Epi1, and Epi2
+# from Saccharomonospora sp. CNQ-490 (RefSeq accession GCF_000527075.1).
+#
+# Protein FASTA files were unavailable for two of the 124,295 representative
+# genomes; these were therefore excluded, resulting in 124,293 genomes analyzed.
+# The FASTA file containing the nine Ebo/Ino/Epi target protein sequences is
+# provided in the subfolder `ebo_proteins/`.
 
 rm(list = ls())
 
@@ -182,12 +196,21 @@ mmseqs_wide <- mmseqs_wide %>%
   )
 
 #############
-# Join with motus-db genome summary
-# downloaded from: http://www.motus-db.org ()
-# includes, among others, genome status, quality, study, GTDB taxonomic assignments...
+# Join with mOTUs-db v4.0 representative genome summary
+#
+# The original full genome summary was downloaded manually from the mOTUs-db
+# web interface (http://www.motus-db.org). For repository distribution, it was
+# reduced to species-level representative genomes (motu_status == "representative")
+# and gzip-compressed. readr::read_tsv() reads .tsv.gz files transparently.
+#
+# The table includes, among others, genome status, quality, study, and GTDB R220
+# taxonomic assignments.
 #############
 
-genomes <- read_tsv("input_tables/mOTUsv4.0_genome_summary.tsv")
+genomes <- read_tsv(
+  "input_tables/mOTUs_v4.0_genome_summary_representatives.tsv.gz",
+  show_col_types = FALSE
+)
 
 # Define adjustable filter presets
 # Note that not all filters are applied in the below code block
@@ -196,7 +219,8 @@ max_contamination <- 5
 max_scaffolds <- 10
 status_filter <- "representative"
 
-# Apply optional filters
+# Apply optional filters. The input table already contains representative genomes
+# only; keeping the motu_status filter here provides an explicit sanity check.
 genomes_filtered <- genomes %>%
   filter(
 #    completeness >= min_completeness,
@@ -326,9 +350,10 @@ hits_long <- mmseqs %>%
   filter(!is.na(scaffold), !is.na(position), !is.na(gene), !is.na(genome)) %>%
   distinct(genome, scaffold, gene, position)
 
-cat("Total target hits kept:", nrow(hits_long), "\n") # These are all mmseqs2 hits
-cat("Unique scaffolds:", n_distinct(hits_long$scaffold), "\n")
-cat("Unique genomes:", n_distinct(hits_long$genome), "\n")
+message("\n=== MMseqs2 hit parsing ===")
+message("Target-protein hits retained after parsing: ", format(nrow(hits_long), big.mark = ","))
+message("Scaffolds containing at least one retained target hit: ", format(n_distinct(hits_long$scaffold), big.mark = ","))
+message("Genomes containing at least one retained target hit: ", format(n_distinct(hits_long$genome), big.mark = ","))
 
 # -----------------------------
 # 3) co-localized target gene clusters per scaffold
@@ -363,9 +388,15 @@ cluster_summary <- if (use_unique_gene_count) {
 cluster_summary <- cluster_summary %>%
   filter(cluster_size_metric >= min_genes_in_cluster)
 
-cat("Kept clusters:", nrow(cluster_summary), "\n")
-cat("Clusters found in this no. of genomes:", dplyr::n_distinct(cluster_summary$genome), "\n")
-cat("Clusters found in this no. of scaffolds:", dplyr::n_distinct(cluster_summary$scaffold), "\n")
+message("\n=== De novo target-gene cluster detection ===")
+message(
+  "Cluster definition: at least ", min_genes_in_cluster,
+  if (use_unique_gene_count) " unique target genes" else " target-gene hits",
+  "; maximum gap between consecutive hits = ", max_gap, " genes."
+)
+message("Clusters retained: ", format(nrow(cluster_summary), big.mark = ","))
+message("Genomes containing at least one retained cluster: ", format(dplyr::n_distinct(cluster_summary$genome), big.mark = ","))
+message("Scaffolds containing at least one retained cluster: ", format(dplyr::n_distinct(cluster_summary$scaffold), big.mark = ","))
 
 # -----------------------------
 # 4) Cluster-level gene presence (kept clusters only)
@@ -396,7 +427,10 @@ cluster_gene_presence_tax <- cluster_gene_presence %>%
   left_join(genome_phylum, by = "genome") %>%
   filter(!is.na(phylum))
 
-cat("Clusters found in this no. of phyla:", dplyr::n_distinct(kept_clusters_tax$phylum), "\n")
+message(
+  "Phyla represented among genomes with retained clusters: ",
+  dplyr::n_distinct(kept_clusters_tax$phylum)
+)
 
 # -----------------------------
 # 6) Relative occurrence per phylum x gene
@@ -498,7 +532,6 @@ ph <- pheatmap(
   number_format = "%.1f",
   labels_col = target_gene_labels,
   fontsize = 9,
-  fontfamily = "Arial",
   fontsize_row = 9,
   fontsize_col = 9,
   main = if (filter_mode == "clusters") {
@@ -550,10 +583,16 @@ dev.off()
 thal_genomes <- sort(unique(na.omit(cluster_summary$genome)))
 genomes_filtered_mmseqs <- genomes_filtered_mmseqs %>%
   dplyr::mutate(thal_cluster = genome %in% thal_genomes)
-write_xlsx(genomes_filtered_mmseqs, "output_tables/thallusin_mOTUsDB_124293genomes_mmseqs2_thal_cluster.xlsx")
+main_output_table <- "output_tables/thallusin_mOTUsDB_124293genomes_mmseqs2_thal_cluster.xlsx"
+write_xlsx(genomes_filtered_mmseqs, main_output_table)
+message("\n=== Main genome-level output ===")
+message("Wrote genome table with thallusin-cluster annotations: ", main_output_table)
 
-
-# Print phyla depicted in the plots:
+# Print phyla retained for the cluster-content plots
+message("\n=== Phyla retained for cluster-content plots ===")
+message(
+  "These phyla pass the selected minimum cluster/genome threshold and are used in the plots below:"
+)
 cat(
   paste0('"p__', unique(occ_phylum$phylum), '"', collapse = ", "),
   "\n"
@@ -741,10 +780,17 @@ rm(list = ls())
 # load genome summary with mmseqs2 results
 genomes_filtered_mmseqs <- read_xlsx("output_tables/thallusin_mOTUsDB_124293genomes_mmseqs2_thal_cluster.xlsx")
 
-# How many Phyla?
-genomes_filtered_mmseqs %>%
+# Taxonomic coverage of the analyzed representative-genome collection
+n_total_phyla <- genomes_filtered_mmseqs %>%
   filter(!is.na(phylum)) %>%
-  summarise(n_phyla = n_distinct(phylum))
+  summarise(n_phyla = n_distinct(phylum)) %>%
+  pull(n_phyla)
+
+message(
+  "\n=== Taxonomic coverage of representative genomes ===\n",
+  "Total GTDB R220 phyla represented in the analyzed genome collection: ",
+  n_total_phyla
+)
 
 # Define feature order for facets
 feature_cols <- c("EboBCEF", "Ino1Epi1Epi2", "EboA", "EboD")
@@ -873,8 +919,9 @@ span_df <- genomes_filtered_mmseqs %>%
   )
 
 # Quick check: number of phyla before filtering by sample size
-n_phyla_span_df <- span_df %>% summarise(n_unique_phylum = n_distinct(phylum))
-print(n_phyla_span_df)
+n_phyla_span_df <- n_distinct(span_df$phylum)
+message("\n=== EboBCEF span quality-control plot ===")
+message("Phyla with EboBCEF on the same scaffold before minimum-sample filtering: ", n_phyla_span_df)
 
 # ------------------------------------------------------------
 # 2) Keep only phyla with enough genomes
@@ -884,10 +931,14 @@ span_df_plot <- span_df %>%
   filter(n_phylum >= min_genomes_per_phylum)
 
 # Quick check: number of phyla after filtering
-n_phyla_span_df_plot <- span_df_plot %>% summarise(n_unique_phylum = n_distinct(phylum))
-print(n_phyla_span_df_plot)
+n_phyla_span_df_plot <- n_distinct(span_df_plot$phylum)
+message(
+  "Phyla retained after requiring at least ", min_genomes_per_phylum,
+  " genomes for the span plot: ", n_phyla_span_df_plot
+)
 
-# print the unique phyla (those are the once that will be later displayed in the tree)
+# Print the unique phyla retained for the span plot/tree-selection workflow
+message("Phyla retained for the span plot/tree-selection workflow:")
 cat(
   paste0('"p__', unique(span_df_plot$phylum), '"', collapse = ", "),
   "\n"
@@ -923,7 +974,7 @@ p_hist_phylum <- ggplot(hist_df, aes(x = span_min)) +
     y = "Count",
     title = paste0(
       "Distance between EboBCEF genes on scaffold\n",
-      "(only phyla that have n \u2265 ", min_genomes_per_phylum,
+      "(only phyla that have n >= ", min_genomes_per_phylum,
       " genomes with EboBCEF on the same scaffold)"
     )
   ) +
@@ -971,16 +1022,16 @@ p_bar_phylum_zoom <- ggplot(hist_df, aes(x = span_min)) +
     labeller = label_wrap_gen(width = 18)
   ) +
   scale_x_continuous(
-    limits = c(0, 20),
     breaks = seq(0, 20, by = 2),   # 0, 2, 4, ..., 20
     expand = expansion(mult = c(0, 0))
   ) +
+  coord_cartesian(xlim = c(0, 20)) +
   labs(
     x = "Distance (number of genes)",
     y = "Count",
     title = paste0(
       "Zoom: Distance between EboBCEF genes on scaffold\n",
-      "(only phyla that have n \u2265 ", min_genomes_per_phylum,
+      "(only phyla that have n >= ", min_genomes_per_phylum,
       " genomes with EboBCEF on the same scaffold)"
     )
   ) +
@@ -1125,8 +1176,15 @@ prevalence <- genomes_filt %>%
   ) %>%
   arrange(desc(n_genomes))
 
-message("Number of retained orders: ", nrow(prevalence))
-message("Number of genomes in retained orders: ", sum(prevalence$n_genomes))
+message("\n=== GTDB tree / iTOL order-level summary ===")
+message(
+  "Orders retained for tree visualization (>= ", min_genomes,
+  " genomes and at least one genome with EboBCEF): ", nrow(prevalence)
+)
+message(
+  "Total representative genomes belonging to these retained orders: ",
+  format(sum(prevalence$n_genomes), big.mark = ",")
+)
 
 orders_target <- unique(prevalence$order)
 
@@ -1302,7 +1360,7 @@ tree_annot$node.label <- paste0("N", seq_len(tree_annot$Nnode))
 tree_out <- file.path(outdir, "itol_pruned_tree.newick")
 ape::write.tree(tree_annot, file = tree_out)
 
-message("Wrote: ", tree_out)
+message("[iTOL export] Wrote pruned GTDB tree: ", tree_out)
 
 #################################################
 # 9) Export TREE_COLORS
@@ -1364,7 +1422,7 @@ for (grp_key in setdiff(key_levels, "Other")) {
 tree_colors_out <- file.path(outdir, "itol_tree_colors.txt")
 writeLines(lines_out, con = tree_colors_out)
 
-message("Wrote: ", tree_colors_out)
+message("[iTOL export] Wrote tree-color annotation: ", tree_colors_out)
 
 #################################################
 # 10) Export DATASET_HEATMAP
@@ -1413,7 +1471,7 @@ heat_dat_lines <- apply(
 heatmap_out <- file.path(outdir, "itol_heatmap_genes.txt")
 writeLines(c(heat_hdr, heat_dat_lines), con = heatmap_out)
 
-message("Wrote: ", heatmap_out)
+message("[iTOL export] Wrote EboBCEF prevalence heatmap dataset: ", heatmap_out)
 
 #################################################
 # 11) Export legend-only DATASET_COLORSTRIP
@@ -1453,7 +1511,7 @@ for (lab in tree_annot$tip.label) {
 colorstrip_out <- file.path(outdir, "itol_colorstrip_groups.txt")
 writeLines(strip_lines, con = colorstrip_out)
 
-message("Wrote: ", colorstrip_out)
+message("[iTOL export] Wrote clade color-strip/legend dataset: ", colorstrip_out)
 
 #################################################
 # 12) Export DATASET_SIMPLEBAR: n_genomes per order
@@ -1490,7 +1548,7 @@ bar_lines <- sprintf("%s\t%.6g", bar_df$label, bar_df$n_genomes)
 bar_out <- file.path(outdir, "itol_bar_n_genomes.txt")
 writeLines(c(bar_hdr, bar_lines), con = bar_out)
 
-message("Wrote: ", bar_out)
+message("[iTOL export] Wrote genomes-per-order bar dataset: ", bar_out)
 
 #################################################
 # Done
@@ -1500,4 +1558,3 @@ message("Wrote: ", bar_out)
 ## go to: https://itol.embl.de
 ## in iTol, go to upload and chose the file: output_itol/itol_pruned_tree.newick
 ## to load annotations, drag&drop generated files in folder "output_itol" into the browser with loaded tree
-
