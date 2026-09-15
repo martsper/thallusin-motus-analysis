@@ -1,19 +1,19 @@
-# Thallusin biosynthetic gene prevalence across mOTUs-db genomes
+# Thallusin biosynthetic potential across the prokaryotic tree of life
 
 This repository contains the analysis scripts and associated input/output files used to investigate the distribution of putative thallusin biosynthetic genes across species-level representative prokaryotic genomes from mOTUs-db v4.0.
 
 ## Overview
 
-The analysis is based on 124,295 species-level representative genomes from mOTUs-db v4.0. As part of the mOTUs-db processing, genomes were taxonomically classified using GTDB R220 with GTDB-Tk v2.4, and protein-coding genes were predicted using Prodigal v2.6.3.
+The analysis is based on the pre-computed set of 124,295 species-level representative genomes from mOTUs-db v4.0 ([Dmitrijeva et al., 2025](https://doi.org/10.1093/nar/gkae1004)). As part of the original mOTUs-db processing, genomes were taxonomically classified using GTDB R220 with GTDB-Tk v2.4.
 
-Translated proteomes of the representative genomes were searched with MMseqs2 `easy-search` against nine target proteins associated with thallusin biosynthesis:
+To map the thallusin biosynthetic potential, protein-coding genes were predicted using Prodigal v2.6.3. and searched with MMseqs2 (`easy-search mode`) against nine target proteins (`ebo_proteins/ebo.faa`) associated with thallusin biosynthesis:
 
 - EboA–F from *Maribacter stanieri* DSM 19891 (RefSeq accession GCF_900112245.1)
 - Ino1, Epi1, and Epi2 from *Saccharomonospora* sp. CNQ-490 (RefSeq accession GCF_000527075.1)
 
-The main R analysis (`thallusin_analysis.R`) identifies putative thallusin biosynthetic genes and co-localized gene clusters, summarizes their taxonomic distribution, and generates figures and iTOL input files.
+The main R analysis (`scripts/thallusin_analysis.R`) takes the MMSeqs2 output and identifies putative thallusin biosynthetic genes and co-localized gene clusters, summarizes their taxonomic distribution, and generates figures and iTOL input files.
 
-A second R script (`plot_environment_distribution.R`) combines mOTUs v4.0 environmental annotations with additional NCBI BioSample metadata for isolate genomes and generates the environmental distribution analysis.
+A second R script (`scripts/plot_environment_distribution.R`) combines available mOTUs v4.0 environmental annotations ([Dmitrijeva et al., 2025](https://doi.org/10.1093/nar/gkae1004)) with additional NCBI BioSample metadata for isolate genomes and generates the environmental distribution analysis.
 
 ## Repository structure
 
@@ -81,24 +81,20 @@ A second R script (`plot_environment_distribution.R`) combines mOTUs v4.0 enviro
 
 ### mOTUs v4.0 representative genome metadata
 
-The file `input_tables/mOTUs_v4.0_genome_summary_representatives.tsv.gz` contains the species-level representative genomes used in this analysis.
+The file `input_tables/mOTUs_v4.0_genome_summary_representatives.tsv.gz` contains the summary of species-level representative genomes used in this analysis.
 
-It was generated from the mOTUs v4.0 genome-summary table downloaded from the mOTUs-db.org web interface by retaining only rows with `motu_status == "representative"` and gzip-compressing the resulting table.
+It was generated from the mOTUs v4.0 genome-summary table downloaded from the https://mOTUs-db.org web interface by selecting only rows (genomes) that are representatives of species-level mOTUs clusters.
 
-Protein FASTA files were unavailable for two representative genomes:
+Of note, protein FASTA files were unavailable for two representative genomes, which were thus excluded from the downstream MMseqs2-based analysis, resulting in 124,293 genomes analyzed:
 
 - `EREM23-1_SAMEA110646518_MAG_00000039`
 - `EREM23-1_SAMEA2623601_MAG_00000045`
-
-These genomes were excluded from the downstream MMseqs2-based analysis, resulting in 124,293 genomes analyzed.
 
 ### mOTUs v4.0 sample metadata
 
 The file `input_tables/mOTUs_v4.0_sample_metadata.tsv` corresponds to Supplementary Table 4 of the mOTUs-db publication and links mOTUs sample identifiers to BioSample accessions, studies, environmental categories, and source-sample links.
 
-Source:
-
-https://doi.org/10.5281/zenodo.13325008
+Source: https://doi.org/10.5281/zenodo.13325008
 
 ### NCBI BioSample metadata
 
