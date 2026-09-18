@@ -17,3 +17,6 @@ Thumbs.db
 
 # Cache
 .cache/
+
+# Plots
+Rplots.pdf

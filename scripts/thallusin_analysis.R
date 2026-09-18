@@ -1394,7 +1394,7 @@ for (i in seq_along(tree_annot$tip.label)) {
   hex <- unname(pal_highlight[[grp]])
   if (is.na(hex)) hex <- "#D0D0D0"
   
-  lines_out <- c(lines_out, sprintf("%s\tlabel\t%s\tnormal\t1", lab, hex))
+  lines_out <- c(lines_out, sprintf("%s\tlabel\t%s\titalic\t1", lab, hex))
   lines_out <- c(lines_out, sprintf("%s\tbranch\t%s\tnormal\t2", lab, hex))
 }
 
@@ -1443,14 +1443,14 @@ stopifnot(identical(heat_wide$label, tree_annot$tip.label))
 heat_hdr <- c(
   "DATASET_HEATMAP",
   "SEPARATOR TAB",
-  "DATASET_LABEL\t% prevalence",
+  "DATASET_LABEL\t% Prevalence",
   "COLOR\t#555555",
   paste("FIELD_LABELS", paste(gene_cols, collapse = "\t"), sep = "\t"),
   paste("FIELD_COLORS", paste(field_colors, collapse = "\t"), sep = "\t"),
   "COLOR_MIN\t#440154",
   "COLOR_MID\t#21918c",
   "COLOR_MAX\t#fde725",
-  "LEGEND_TITLE\t% prevalence",
+  "LEGEND_TITLE\t% Prevalence",
   "DATA"
 )
 
@@ -1480,27 +1480,50 @@ message("[iTOL export] Wrote EboBCEF prevalence heatmap dataset: ", heatmap_out)
 keep_clean <- sub("^p__", "", keep_phyla)
 target_classes_clean <- sub("^c__", "", targets_classes)
 
-legend_keys <- c(
-  keep_clean[keep_clean %in% names(pal_highlight)],
-  target_classes_clean[target_classes_clean %in% names(pal_highlight)]
+# Desired order of Pseudomonadota classes in the legend
+target_classes_legend <- c(
+  "Gammaproteobacteria",
+  "Alphaproteobacteria"
 )
 
-legend_colors <- unname(pal_highlight[legend_keys])
+legend_keys <- c(
+  keep_clean[keep_clean %in% names(pal_highlight)],
+  target_classes_legend[
+    target_classes_legend %in% names(pal_highlight)
+  ]
+)
+
+# Colors are looked up AFTER reordering, so each legend entry
+# retains the same color as the corresponding clade in the tree.
+legend_colors <- unname(
+  pal_highlight[legend_keys]
+)
+
+# Display names used only in the legend
+legend_labels <- legend_keys
+
+legend_labels[
+  legend_labels == "Gammaproteobacteria"
+] <- "Pseudomonadota (Gammaprot.)"
+
+legend_labels[
+  legend_labels == "Alphaproteobacteria"
+] <- "Pseudomonadota (Alphaprot.)"
 
 strip_lines <- c(
   "DATASET_COLORSTRIP",
   "SEPARATOR\tTAB",
-  "DATASET_LABEL\tHighlighted clades",
+  "DATASET_LABEL\tPhyla",
   "COLOR\t#000000",
   "STRIP_WIDTH\t0",
   "SHOW_LABELS\t0",
   "SHOW_STRIP_LABELS\t0",
   "BORDER_WIDTH\t0",
   "MARGIN\t-2",
-  "LEGEND_TITLE\tHighlighted clades",
+  "LEGEND_TITLE\tPhyla",
   sprintf("LEGEND_SHAPES\t%s", paste(rep(1, length(legend_keys)), collapse = "\t")),
   sprintf("LEGEND_COLORS\t%s", paste(legend_colors, collapse = "\t")),
-  sprintf("LEGEND_LABELS\t%s", paste(legend_keys, collapse = "\t")),
+  sprintf("LEGEND_LABELS\t%s", paste(legend_labels, collapse = "\t")),
   "DATA"
 )
 
@@ -1531,15 +1554,15 @@ stopifnot(identical(bar_df$label, tree_annot$tip.label))
 bar_hdr <- c(
   "DATASET_SIMPLEBAR",
   "SEPARATOR\tTAB",
-  "DATASET_LABEL\t# genomes per order",
+  "DATASET_LABEL\tGenomes per order",
   "COLOR\t#555555",
   "WIDTH\t80",
   "MARGIN\t2",
   "SHOW_VALUES\t1",
-  "LEGEND_TITLE\tOrder sizes",
+  "LEGEND_TITLE\tGenomes per order",
   "LEGEND_SHAPES\t1",
   "LEGEND_COLORS\t#555555",
-  "LEGEND_LABELS\t# genomes",
+  "LEGEND_LABELS\tCounts ",
   "DATA"
 )
 

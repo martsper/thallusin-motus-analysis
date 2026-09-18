@@ -1,16 +1,16 @@
 DATASET_COLORSTRIP
 SEPARATOR	TAB
-DATASET_LABEL	Highlighted clades
+DATASET_LABEL	Phyla
 COLOR	#000000
 STRIP_WIDTH	0
 SHOW_LABELS	0
 SHOW_STRIP_LABELS	0
 BORDER_WIDTH	0
 MARGIN	-2
-LEGEND_TITLE	Highlighted clades
+LEGEND_TITLE	Phyla
 LEGEND_SHAPES	1	1	1	1	1	1	1	1	1	1	1	1
-LEGEND_COLORS	#8DA0CB	#FF7F00	#FFFF33	#377EB8	#FC8D62	#984EA3	#66C2A5	#E41A1C	#999999	#A65628	#4DAF4A	#F781BF
-LEGEND_LABELS	Spirochaetota	Cyanobacteriota	Deinococcota	Actinomycetota	Verrucomicrobiota	Bacteroidota	Planctomycetota	Acidobacteriota	Myxococcota	Desulfobacterota	Alphaproteobacteria	Gammaproteobacteria
+LEGEND_COLORS	#8DA0CB	#FF7F00	#FFFF33	#377EB8	#FC8D62	#984EA3	#66C2A5	#E41A1C	#999999	#A65628	#F781BF	#4DAF4A
+LEGEND_LABELS	Spirochaetota	Cyanobacteriota	Deinococcota	Actinomycetota	Verrucomicrobiota	Bacteroidota	Planctomycetota	Acidobacteriota	Myxococcota	Desulfobacterota	Pseudomonadota (Gammaprot.)	Pseudomonadota (Alphaprot.)
 DATA
 Leptospirales	rgba(0,0,0,0)	
 Solirubrobacterales	rgba(0,0,0,0)	

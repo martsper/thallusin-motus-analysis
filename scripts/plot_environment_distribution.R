@@ -61,6 +61,7 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(scales)
   library(writexl)
+  library(ggtext)
 })
 
 
@@ -85,6 +86,9 @@ figure_pdf <-
 
 figure_png <-
   "output_figures/environment_distribution_selected_taxa.png"
+
+figure_svg <-
+  "output_figures/environment_distribution_selected_taxa.svg"
 
 
 dir.create(
@@ -1769,15 +1773,34 @@ tax_order <- c(
   "Spirochaetota",
   "Cyanobacteriota",
   "Deinococcota",
-  "Bacteroidota",
   "Actinomycetota",
   "Verrucomicrobiota",
+  "Bacteroidota",
   "Planctomycetota",
   "Acidobacteriota",
   "Myxococcota",
   "Desulfobacterota",
   "Pseudomonadota (Gammaprot.)",
   "Pseudomonadota (Alphaprot.)"
+)
+
+# Display labels for the final figure.
+# Taxonomic names are italicized, while punctuation remains upright.
+tax_labels <- c(
+  "Spirochaetota" = "<i>Spirochaetota</i>",
+  "Cyanobacteriota" = "<i>Cyanobacteriota</i>",
+  "Deinococcota" = "<i>Deinococcota</i>",
+  "Actinomycetota" = "<i>Actinomycetota</i>",
+  "Verrucomicrobiota" = "<i>Verrucomicrobiota</i>",
+  "Bacteroidota" = "<i>Bacteroidota</i>",
+  "Planctomycetota" = "<i>Planctomycetota</i>",
+  "Acidobacteriota" = "<i>Acidobacteriota</i>",
+  "Myxococcota" = "<i>Myxococcota</i>",
+  "Desulfobacterota" = "<i>Desulfobacterota</i>",
+  "Pseudomonadota (Gammaprot.)" =
+    "<i>Pseudomonadota</i> (<i>Gammaprot</i>.)",
+  "Pseudomonadota (Alphaprot.)" =
+    "<i>Pseudomonadota</i> (<i>Alphaprot</i>.)"
 )
 
 
@@ -1925,19 +1948,22 @@ taxon_totals <- plot_data %>%
 # ============================================================
 
 habitat_colors <- c(
-  "Marine" = "#1F78B4",
-  "Freshwater" = "#6BAED6",
-  "Terrestrial" = "#66A61E",
-  "Host-associated" = "#E7298A",
-  "Biofilm" = "#7570B3",
-  "Anthropogenic" = "#D95F02",
-  "Other" = "#999999",
-  "No annotation" = "#E5E5E5"
+  "Marine"          = "#3C7ABE",  # dark blue
+  "Freshwater"      = "#7DC6F6",  # light blue
+  "Terrestrial"     = "#6FBC73",  # green
+  "Host-associated" = "#F48947",  # orange
+  "Biofilm"         = "#F2C94C",  # gold/yellow
+  "Anthropogenic"   = "#E24A42",  # red
+  "Other"           = "#A7A9AC",  # medium grey
+  "No annotation"   = "#E5E5E5"   # light grey
 )
 
 
 # ============================================================
 # Plot
+#
+# The figure is formatted as a full-width panel for a portrait
+# DIN A4 composite figure (Fig. 5B), with 8 pt typography.
 # ============================================================
 
 p <- ggplot(
@@ -1958,14 +1984,11 @@ p <- ggplot(
     aes(
       x = 1.015,
       y = taxon,
-      label = paste0(
-        "n = ",
-        total_n
-      )
+      label = paste0("n = ", total_n)
     ),
     inherit.aes = FALSE,
     hjust = 0,
-    size = 3.4
+    size = 8 / 2.845
   ) +
 
   scale_x_continuous(
@@ -1983,6 +2006,10 @@ p <- ggplot(
     )
   ) +
 
+  scale_y_discrete(
+    labels = tax_labels
+  ) +
+
   scale_fill_manual(
     values = habitat_colors,
     limits = habitat_order,
@@ -1998,63 +2025,106 @@ p <- ggplot(
   ) +
 
   labs(
-    x = "Fraction of genomes",
+    x = "Fraction of EboBCEF-positive genomes",
     y = NULL,
-    fill = "Habitat"
+    fill = "Environment"
   ) +
 
   theme_classic(
-    base_size = 11
+    base_size = 8
   ) +
 
   theme(
+    axis.text.x =
+      element_text(
+        size = 8,
+        colour = "black"
+      ),
+
+    axis.text.y =
+      ggtext::element_markdown(
+        size = 8,
+        colour = "black"
+      ),
+
+    axis.title.x =
+      element_text(
+        size = 8,
+        colour = "black"
+      ),
 
     legend.position =
       "right",
 
     legend.title =
       element_text(
-        size = 10
+        size = 8
       ),
 
     legend.text =
       element_text(
-        size = 9
+        size = 8
       ),
 
-    axis.text.y =
-      element_text(
-        size = 10
+    legend.key.height =
+      grid::unit(
+        4.5,
+        "mm"
+      ),
+
+    legend.key.width =
+      grid::unit(
+        4.5,
+        "mm"
       ),
 
     plot.margin =
       margin(
-        t = 10,
-        r = 45,
-        b = 10,
-        l = 10
+        t = 4,
+        r = 22,
+        b = 4,
+        l = 4,
+        unit = "mm"
       )
   )
 
 
 # ============================================================
 # Save figure
+#
+# 190 mm width fits comfortably within an A4 portrait page
+# with standard manuscript margins. The 100 mm height is
+# suitable for placement below the phylogenetic tree as Fig. 5B.
 # ============================================================
 
 ggsave(
   filename = figure_pdf,
   plot = p,
-  width = 9.5,
-  height = 6.2
+  width = 190,
+  height = 50,
+  units = "mm",
+  device = cairo_pdf,
+  bg = "white"
 )
 
+ggsave(
+  filename = figure_svg,
+  plot = p,
+  width = 190,
+  height = 60,
+  units = "mm",
+  device = svglite::svglite,
+  bg = "white"
+)
 
 ggsave(
   filename = figure_png,
   plot = p,
-  width = 9.5,
-  height = 6.2,
-  dpi = 300
+  width = 190,
+  height = 50,
+  units = "mm",
+  dpi = 600,
+  bg = "white"
 )
 
 
