@@ -168,7 +168,7 @@ Environmental annotations are assigned with the following priority:
 
 NCBI BioSample metadata are conservatively mapped onto the existing mOTUs v4.0 environment vocabulary before being combined with the original annotations.
 
-For visualization, the original mOTUs v4.0 `ENVIRONMENT` labels are grouped into broad, mutually exclusive habitat classes as follows:
+For visualization, the original mOTUs v4.0 `ENVIRONMENT` labels are grouped into broad habitat classes as follows:
 
 **Marine**
 - `estuary metagenome`
