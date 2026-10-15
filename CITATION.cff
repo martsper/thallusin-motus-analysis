@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "Thallusin biosynthetic potential across the prokaryotic tree of life"
+type: software
+authors:
+  - family-names: "Sperfeld"
+    given-names: "Martin"
+    orcid: "https://orcid.org/0000-0001-8707-7761"
+    affiliation: "ETH Zurich, Institute of Microbiology"
+version: 1.0.0
+date-released: 2026-10-15
+license: MIT
+repository-code: "https://github.com/martsper/thallusin-motus-analysis"
